@@ -454,7 +454,7 @@ struct EventSelectionTask {
   Configurable<float> confTimeRangeVetoOnCollStandard{"TimeRangeVetoOnCollStandard", 10, "Exclusion of a collision if there are other collisions nearby, +/- us"};
   Configurable<float> confTimeRangeVetoOnCollNarrow{"TimeRangeVetoOnCollNarrow", 4, "Exclusion of a collision if there are other collisions nearby, +/- us"};
   Configurable<bool> confUseWeightsForOccupancyVariable{"UseWeightsForOccupancyEstimator", 1, "Use or not the delta-time weights for the occupancy estimator"};
-
+  Configurable<float> collisionTimeResCut{"collisionTimeResCut", -1.f, "Cut out events with bad event time resolution"};
   Partition<aod::Tracks> tracklets = (aod::track::trackType == static_cast<uint8_t>(o2::aod::track::TrackTypeEnum::Run2Tracklet));
 
   Service<o2::ccdb::BasicCCDBManager> ccdb;
@@ -920,6 +920,9 @@ struct EventSelectionTask {
 
       int nTracksITS567inFullTimeWin = vNumTracksITS567inFullTimeWin[colIndex];
       // histos.get<TH1>(HIST("hOccupancy"))->Fill(nTracksITS567inFullTimeWin);
+      if (collisionTimeResCut.value > 0.f) {
+        sel8 = sel8 && col.collisionTimeRes() < collisionTimeResCut;
+      }
 
       evsel(alias, selection, sel7, sel8, foundBC, foundFT0, foundFV0, foundFDD, foundZDC, nTracksITS567inFullTimeWin);
     }
